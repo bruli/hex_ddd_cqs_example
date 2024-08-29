@@ -23,3 +23,5 @@ services:
         POSTGRES_USER: ${POSTGRES_USER:-postgres}
         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
         POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE:-disable}
+      ports:
+       - "5432:5432"

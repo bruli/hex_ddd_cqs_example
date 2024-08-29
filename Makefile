@@ -3,6 +3,9 @@ DOCKER_COMPOSE          := docker-compose
 test-unit:
 	go test -race ./...
 
+.PHONY: test-functional
+test-functional:
+	go test -race -tags functional -v ./test/functional/... --count=1
 
 .PHONY: docker-up
 docker-up:
@@ -20,3 +23,15 @@ docker-down:
 .PHONY: docker-logs
 docker-logs:
 	$(DOCKER_COMPOSE) logs -f server
+
+.PHONY: install-migrate
+install-migrate:
+	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+.PHONY: create-migration
+create-migration:
+	migrate create -dir internal/infra/postgres/migrations -ext sql ${NAME}
+
+.PHONY: run-migrations
+run-migrations:
+	migrate -source file://internal/infra/postgres/migrations -database postgres://postgres:admin@localhost:5432/example?sslmode=disable up
