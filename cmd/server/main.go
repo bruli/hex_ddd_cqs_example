@@ -2,8 +2,12 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+	"github.com/upper/db/v4"
+	"github.com/upper/db/v4/adapter/postgresql"
 	"hex_ddd_cqs_example/config"
 	http2 "hex_ddd_cqs_example/http"
 	"log"
@@ -20,6 +24,26 @@ func main() {
 		return
 	}
 
+	conn, err := sql.Open("postgres", fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		conf.PostgresUser(),
+		conf.PostgresPassword(),
+		conf.PostgresHost(),
+		conf.PostgresPort(),
+		conf.PostgresDB(),
+	))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	sess, closeFunc, err := NewPostgreSQLConnection(conn)()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer func() { _ = closeFunc }()
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	gin.SetMode(gin.ReleaseMode)
@@ -27,9 +51,11 @@ func main() {
 	r.Use(gin.Recovery())
 
 	r.GET("/", http2.Homepage())
+	r.POST("/users", http2.CreteUser(sess))
+	r.GET("/users/:id", http2.FindUser(sess))
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s", conf.ApiHost()),
+		Addr:    conf.ApiHost(),
 		Handler: r,
 	}
 	defer func() { _ = server.Shutdown(ctx) }()
@@ -59,3 +85,17 @@ func main() {
 	}
 
 }
+
+func NewPostgreSQLConnection(conn *sql.DB) OpenDbConnectionFunc {
+	return func() (db.Session, CloseDBFunc, error) {
+		sess, err := postgresql.New(conn)
+		if err != nil {
+			return nil, nil, err
+		}
+		return sess, func() error { return conn.Close() }, nil
+	}
+}
+
+type OpenDbConnectionFunc func() (db.Session, CloseDBFunc, error)
+
+type CloseDBFunc func() error

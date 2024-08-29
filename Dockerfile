@@ -1,5 +1,5 @@
 # build stage
-FROM golang:1.18-bullseye
+FROM golang:1.22-bullseye
 
 RUN mkdir /app
 WORKDIR /app

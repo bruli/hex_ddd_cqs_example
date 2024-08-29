@@ -7,7 +7,16 @@ import (
 
 type Config struct {
 	postgresDB, postgresUser, postgresPassword string
+	postgresHost, postgresPort                 string
 	apiHost                                    string
+}
+
+func (c Config) PostgresHost() string {
+	return c.postgresHost
+}
+
+func (c Config) PostgresPort() string {
+	return c.postgresPort
 }
 
 func (c Config) PostgresDB() string {
@@ -43,10 +52,20 @@ func New() (*Config, error) {
 	if apiHost == "" {
 		return nil, errors.New("API_HOST environment variable not set")
 	}
+	dbHost := os.Getenv("POSTGRES_HOST")
+	if dbHost == "" {
+		return nil, errors.New("POSTGRES_HOST environment variable not set")
+	}
+	dbPort := os.Getenv("POSTGRES_PORT")
+	if dbPort == "" {
+		return nil, errors.New("POSTGRES_PORT environment variable not set")
+	}
 	return &Config{
 		postgresDB:       dbName,
 		postgresUser:     dbUser,
 		postgresPassword: dbPassword,
+		postgresHost:     dbHost,
+		postgresPort:     dbPort,
 		apiHost:          apiHost,
 	}, nil
 }
