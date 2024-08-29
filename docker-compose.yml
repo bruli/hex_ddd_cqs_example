@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  server:
+    build:
+      context: .
+    container_name: example-server
+    volumes:
+      - .:/app
+      - $GOPATH/pkg/mod:/go/pkg/mod
+    ports:
+     - "8083:8080"
+    env_file:
+      - .env
+    depends_on:
+          database:
+            condition: service_started
+  database:
+      container_name: example-postgres
+      image: postgres:12.6
+      environment:
+        POSTGRES_DB: ${POSTGRES_DATABASE:-example}
+        POSTGRES_USER: ${POSTGRES_USER:-postgres}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+        POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE:-disable}
