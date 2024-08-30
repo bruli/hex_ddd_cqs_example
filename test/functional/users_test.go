@@ -5,7 +5,7 @@ package functional
 import (
 	"fmt"
 	"github.com/google/uuid"
-	http2 "hex_ddd_cqs_example/http"
+	http2 "hex_ddd_cqs_example/internal/infra/http"
 	"net/http"
 	"testing"
 
