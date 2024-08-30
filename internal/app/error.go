@@ -13,3 +13,15 @@ func NewInvalidQueryError(had, expected string) InvalidQueryError {
 func (i InvalidQueryError) Error() string {
 	return fmt.Sprintf("invalid query. Expected: %q, had: %q", i.expected, i.had)
 }
+
+type InvalidCommandError struct {
+	had, expected string
+}
+
+func NewInvalidCommandError(had, expected string) InvalidCommandError {
+	return InvalidCommandError{had: had, expected: expected}
+}
+
+func (i InvalidCommandError) Error() string {
+	return fmt.Sprintf("invalid query. Expected: %q, had: %q", i.expected, i.had)
+}

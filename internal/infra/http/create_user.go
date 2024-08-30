@@ -1,13 +1,15 @@
 package http
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"hex_ddd_cqs_example/internal/app"
 	"hex_ddd_cqs_example/internal/domain/user"
 	"net/http"
 )
 
-func CreteUser(userRepo user.UserRepository) gin.HandlerFunc { //NEW injecting user repository
+func CreteUser(ch app.CommandHandler) gin.HandlerFunc { //NEW injecting user repository
 	return func(c *gin.Context) {
 		var req CreateUserRequest
 		if err := c.BindJSON(&req); err != nil {
@@ -19,13 +21,17 @@ func CreteUser(userRepo user.UserRepository) gin.HandlerFunc { //NEW injecting u
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 			return
 		}
-		us, err := user.NewUser(id, req.Username, req.Phone)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		if err := user.CreateUser(c.Request.Context(), userRepo, *us); err != nil {
-			c.Status(http.StatusInternalServerError)
+		if _, err := ch.Handle(c.Request.Context(), app.CreateUserCommand{
+			ID:       id,
+			UserName: req.Username,
+			Phone:    req.Phone,
+		}); err != nil {
+			switch {
+			case errors.As(err, &user.CreateUserError{}):
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			default:
+				c.Status(http.StatusInternalServerError)
+			}
 			return
 		}
 		c.Status(http.StatusOK)

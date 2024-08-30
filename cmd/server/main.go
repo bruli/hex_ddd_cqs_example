@@ -55,10 +55,11 @@ func main() {
 	userRepo := postgres.NewUserRepository(sess)
 
 	findUserQH := app.NewFindUser(userRepo)
+	createUserCH := app.NewCreateUser(userRepo)
 
 	r.GET("/", http3.Homepage())
 
-	r.POST("/users", http3.CreteUser(userRepo))
+	r.POST("/users", http3.CreteUser(createUserCH))
 	r.GET("/users/:id", http3.FindUser(findUserQH))
 
 	server := &http.Server{
