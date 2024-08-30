@@ -28,15 +28,11 @@ func (p PostgresUserRepository) FindById(ctx context.Context, id uuid.UUID) (*Us
 	if err := p.sess.WithContext(ctx).Collection(UsersTableName).Find(db.Cond{"id": id.String()}).One(&model); err != nil {
 		return nil, err
 	}
-	return buildUser(model), nil
+	return buildUser(model)
 }
 
-func buildUser(model PostgresUser) *User {
-	return &User{
-		ID:       model.ID,
-		UserName: model.UserName,
-		Phone:    model.Phone,
-	}
+func buildUser(model PostgresUser) (*User, error) {
+	return NewUser(model.ID, model.UserName, model.Phone)
 }
 
 type PostgresUser struct {

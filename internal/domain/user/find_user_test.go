@@ -5,7 +5,8 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"hex_ddd_cqs_example/user"
+	"hex_ddd_cqs_example/internal/domain/user"
+	"hex_ddd_cqs_example/internal/fixtures"
 	"testing"
 )
 
@@ -16,6 +17,7 @@ func TestFindUser(t *testing.T) {
 	}
 	id := uuid.New()
 	defaultArgs := args{id: id}
+	userBuilt := fixtures.UserBuilder{ID: &id}.Build(t) //NEW, adding fixtures
 	tests := []struct {
 		name                 string
 		args                 args
@@ -31,7 +33,7 @@ func TestFindUser(t *testing.T) {
 		{
 			name: "and repository returns an user, then it returns same user",
 			args: defaultArgs,
-			want: &user.User{ID: id},
+			want: &userBuilt,
 		},
 	}
 	for _, tt := range tests {

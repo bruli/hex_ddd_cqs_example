@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"hex_ddd_cqs_example/user"
+	"hex_ddd_cqs_example/internal/domain/user"
 	"net/http"
 )
 

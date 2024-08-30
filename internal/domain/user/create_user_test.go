@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"hex_ddd_cqs_example/user"
+	"hex_ddd_cqs_example/internal/domain/user"
 	"testing"
 )
 
@@ -50,6 +50,7 @@ func TestCreateUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(`Given a CreateUser method,
 		when is called `+tt.name, func(t *testing.T) {
+			t.Parallel()
 			repo := &user.UserRepositoryMock{}
 			repo.FindByIdFunc = func(ctx context.Context, id uuid.UUID) (*user.User, error) {
 				return tt.foundUser, tt.findRepoErr
