@@ -51,12 +51,10 @@ func main() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 
-	userRepo := postgres.NewUserRepository(sess) //NEW Declaring user repository
+	userRepo := postgres.NewUserRepository(sess)
 
 	r.GET("/", http3.Homepage())
 
-	// NEW, changing the implementation in http controllers to use
-	// user repository instead of database session
 	r.POST("/users", http3.CreteUser(userRepo))
 	r.GET("/users/:id", http3.FindUser(userRepo))
 

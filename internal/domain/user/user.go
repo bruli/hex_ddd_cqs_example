@@ -10,7 +10,6 @@ var (
 	ErrInvalidUserName = errors.New("invalid user name")
 )
 
-// User NEW, refactor entity. Adding validation and test.
 type User struct {
 	id       uuid.UUID
 	userName string
