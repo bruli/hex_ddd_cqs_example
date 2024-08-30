@@ -3,12 +3,11 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/upper/db/v4"
 	"hex_ddd_cqs_example/user"
 	"net/http"
 )
 
-func CreteUser(sess db.Session) gin.HandlerFunc {
+func CreteUser(userRepo user.UserRepository) gin.HandlerFunc { //NEW injecting user repository
 	return func(c *gin.Context) {
 		var req CreateUserRequest
 		if err := c.BindJSON(&req); err != nil {
@@ -20,7 +19,7 @@ func CreteUser(sess db.Session) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 			return
 		}
-		if err := user.CreateUser(c.Request.Context(), sess, user.PostgresUser{
+		if err := user.CreateUser(c.Request.Context(), userRepo, user.User{
 			ID:       id,
 			UserName: req.Username,
 			Phone:    req.Phone,

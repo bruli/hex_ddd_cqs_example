@@ -10,6 +10,7 @@ import (
 	"github.com/upper/db/v4/adapter/postgresql"
 	"hex_ddd_cqs_example/config"
 	http2 "hex_ddd_cqs_example/http"
+	"hex_ddd_cqs_example/user"
 	"log"
 	"net/http"
 	"os"
@@ -50,9 +51,14 @@ func main() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 
+	userRepo := user.NewPostgresUserRepository(sess) //NEW Declaring user repository
+
 	r.GET("/", http2.Homepage())
-	r.POST("/users", http2.CreteUser(sess))
-	r.GET("/users/:id", http2.FindUser(sess))
+
+	// NEW, changing the implementation in http controllers to use
+	// user repository instead of database session
+	r.POST("/users", http2.CreteUser(userRepo))
+	r.GET("/users/:id", http2.FindUser(userRepo))
 
 	server := &http.Server{
 		Addr:    conf.ApiHost(),
