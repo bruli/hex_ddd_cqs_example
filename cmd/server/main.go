@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/postgresql"
+	"hex_ddd_cqs_example/internal/app"
 	"hex_ddd_cqs_example/internal/config"
 	http3 "hex_ddd_cqs_example/internal/infra/http"
 	"hex_ddd_cqs_example/internal/infra/postgres"
@@ -53,10 +54,12 @@ func main() {
 
 	userRepo := postgres.NewUserRepository(sess)
 
+	findUserQH := app.NewFindUser(userRepo)
+
 	r.GET("/", http3.Homepage())
 
 	r.POST("/users", http3.CreteUser(userRepo))
-	r.GET("/users/:id", http3.FindUser(userRepo))
+	r.GET("/users/:id", http3.FindUser(findUserQH))
 
 	server := &http.Server{
 		Addr:    conf.ApiHost(),
